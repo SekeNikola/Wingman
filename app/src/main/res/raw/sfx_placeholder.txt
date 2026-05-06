@@ -1,0 +1,3 @@
+Place sfx_click.ogg and sfx_scroll.ogg in this directory.
+These are short OGG audio clips for selection and activation sound effects.
+They should be loaded by SoundPool in AudioPlayer.kt (util layer).
