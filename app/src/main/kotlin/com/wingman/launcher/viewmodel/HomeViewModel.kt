@@ -44,14 +44,13 @@ class HomeViewModel @Inject constructor(
         private val MENU_ITEMS = listOf(
             MenuItem("SCANS",     "SCANS",     PixelIconType.RADAR,      AppDestination.Scans),
             MenuItem("ORGANIZER", "ORGANIZER", PixelIconType.FOLDER,     AppDestination.Organizer),
-            MenuItem("TUTORIALS", "TUTORIALS", PixelIconType.BOOK,       AppDestination.Tutorials),
             MenuItem("MUSIC",     "MUSIC",     PixelIconType.MUSIC_NOTE, AppDestination.Music),
             MenuItem("APPS",      "APPS",      PixelIconType.GRID,       AppDestination.AppDrawer),
             MenuItem("FILES",     "FILES",     PixelIconType.CAMERA,     AppDestination.Gallery),
             MenuItem("SETTINGS",  "SETTINGS",  PixelIconType.GEAR,       AppDestination.Settings)
         )
-        // Items that let the user pick and save a default app on first tap
-        val LINKABLE = setOf("MUSIC", "APPS")
+        // Items that auto-launch the saved default app (first tap = pick, subsequent = launch)
+        val LINKABLE = setOf("MUSIC")
     }
 
     private val _uiState = MutableStateFlow(

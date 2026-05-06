@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,6 +32,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wingman.launcher.data.model.AppShortcut
 import com.wingman.launcher.data.model.SystemStatus
 import com.wingman.launcher.data.model.ThemeVariant
 import com.wingman.launcher.ui.components.AppPickerOverlay
@@ -44,7 +47,14 @@ import com.wingman.launcher.ui.theme.WingmanTheme
 import com.wingman.launcher.viewmodel.SettingsViewModel
 import kotlin.math.roundToInt
 
-private val SETTINGS_ITEMS = listOf("EFFECT INTENSITY", "THEME VARIANT", "ICON PACK", "ADJUST SCREENS")
+private val SETTINGS_ITEMS = listOf(
+    "EFFECT INTENSITY",
+    "THEME VARIANT",
+    "ICON PACK",
+    "ADJUST SCREENS",
+    "DEFAULT: ORGANIZER",
+    "DEFAULT: MUSIC"
+)
 
 @Composable
 fun SettingsScreen(
@@ -56,14 +66,17 @@ fun SettingsScreen(
 ) {
     BackHandler { onBack() }
 
-    val settingsState   by settingsViewModel.settingsState.collectAsState()
-    val iconPacks       by settingsViewModel.iconPacks.collectAsState()
-    val selectedPack    by settingsViewModel.selectedIconPack.collectAsState()
+    val settingsState  by settingsViewModel.settingsState.collectAsState()
+    val iconPacks      by settingsViewModel.iconPacks.collectAsState()
+    val selectedPack   by settingsViewModel.selectedIconPack.collectAsState()
+    val linkedApps     by settingsViewModel.linkedApps.collectAsState()
+    val installedApps  by settingsViewModel.installedApps.collectAsState()
     val colors = WingmanTheme.colors
     val typo   = WingmanTheme.typography
 
-    var selectedIndex       by remember { mutableIntStateOf(0) }
-    var showIconPackPicker  by remember { mutableStateOf(false) }
+    var selectedIndex      by remember { mutableIntStateOf(0) }
+    var showIconPackPicker by remember { mutableStateOf(false) }
+    var showDefaultPicker  by remember { mutableStateOf<String?>(null) } // itemId being edited
 
     val handleInput = rememberInputHandler { event ->
         when (event) {
@@ -80,6 +93,8 @@ fun SettingsScreen(
                     }
                     2 -> showIconPackPicker = true
                     3 -> onOpenCalibration()
+                    4 -> showDefaultPicker = "ORGANIZER"
+                    5 -> showDefaultPicker = "MUSIC"
                 }
             }
             is InputEvent.Back -> onBack()
@@ -90,7 +105,6 @@ fun SettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.background)
-            // BUG-07: Intercept Left/Right on the intensity row before passing to handleWingmanInput
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyDown && selectedIndex == 0) {
                     when (keyEvent.key) {
@@ -114,8 +128,11 @@ fun SettingsScreen(
             }
             .handleWingmanInput(handleInput)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             TopBar(status = systemStatus)
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -129,22 +146,22 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── EFFECT INTENSITY slider row ───────────────────────────────
+            // ── EFFECT INTENSITY ─────────────────────────────────────────────
             SettingsRow(
                 label      = "EFFECT INTENSITY",
                 isSelected = selectedIndex == 0,
                 onClick    = { selectedIndex = 0 }
             ) {
                 IntensitySlider(
-                    value     = settingsState.effectIntensity,
+                    value      = settingsState.effectIntensity,
                     isSelected = selectedIndex == 0,
-                    onChange  = { settingsViewModel.updateEffectIntensity(it) }
+                    onChange   = { settingsViewModel.updateEffectIntensity(it) }
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // ── THEME VARIANT toggle row ───────────────────────────────────
+            // ── THEME VARIANT ────────────────────────────────────────────────
             SettingsRow(
                 label      = "THEME VARIANT",
                 isSelected = selectedIndex == 1,
@@ -159,7 +176,7 @@ fun SettingsScreen(
                 }
             ) {
                 WingmanText(
-                    text = settingsState.themeVariant.name,
+                    text  = settingsState.themeVariant.name,
                     style = typo.body,
                     color = if (selectedIndex == 1) colors.black else colors.primary
                 )
@@ -167,7 +184,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // ── ICON PACK row ─────────────────────────────────────────────────
+            // ── ICON PACK ────────────────────────────────────────────────────
             SettingsRow(
                 label      = "ICON PACK",
                 isSelected = selectedIndex == 2,
@@ -188,7 +205,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // ── ADJUST SCREENS row ────────────────────────────────────────────
+            // ── ADJUST SCREENS ───────────────────────────────────────────────
             SettingsRow(
                 label      = "ADJUST SCREENS",
                 isSelected = selectedIndex == 3,
@@ -204,14 +221,69 @@ fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            WingmanText(
+                text     = "// DEFAULT APPS",
+                style    = typo.caption,
+                color    = colors.dimText,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // ── DEFAULT: ORGANIZER ───────────────────────────────────────────
+            SettingsRow(
+                label      = "ORGANIZER",
+                isSelected = selectedIndex == 4,
+                onClick    = {
+                    if (selectedIndex == 4) showDefaultPicker = "ORGANIZER"
+                    else selectedIndex = 4
+                }
+            ) {
+                val pkg   = linkedApps["ORGANIZER"]
+                val label = if (pkg != null)
+                    installedApps.firstOrNull { it.packageName == pkg }?.label?.take(14) ?: pkg.take(14)
+                else "NONE"
+                WingmanText(
+                    text  = label,
+                    style = typo.caption,
+                    color = if (selectedIndex == 4) colors.black else colors.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // ── DEFAULT: MUSIC ───────────────────────────────────────────────
+            SettingsRow(
+                label      = "MUSIC",
+                isSelected = selectedIndex == 5,
+                onClick    = {
+                    if (selectedIndex == 5) showDefaultPicker = "MUSIC"
+                    else selectedIndex = 5
+                }
+            ) {
+                val pkg   = linkedApps["MUSIC"]
+                val label = if (pkg != null)
+                    installedApps.firstOrNull { it.packageName == pkg }?.label?.take(14) ?: pkg.take(14)
+                else "NONE"
+                WingmanText(
+                    text  = label,
+                    style = typo.caption,
+                    color = if (selectedIndex == 5) colors.black else colors.primary
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             WingmanText(
-                text = "LEFT/RIGHT = adjust  |  UP/DOWN = navigate  |  ENTER = toggle",
-                style = typo.caption,
-                color = colors.dimText,
+                text     = "LEFT/RIGHT = adjust  |  UP/DOWN = navigate  |  ENTER = select",
+                style    = typo.caption,
+                color    = colors.dimText,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         ScanlineOverlay(intensity = effectIntensity)
@@ -219,7 +291,7 @@ fun SettingsScreen(
 
         if (showIconPackPicker) {
             val packOptions = listOf(
-                com.wingman.launcher.data.model.AppShortcut("", "DEFAULT (system icons)", null)
+                AppShortcut("", "DEFAULT (system icons)", null)
             ) + iconPacks
             AppPickerOverlay(
                 apps      = packOptions,
@@ -229,6 +301,20 @@ fun SettingsScreen(
                     showIconPackPicker = false
                 },
                 onDismiss = { showIconPackPicker = false }
+            )
+        }
+
+        val pickFor = showDefaultPicker
+        if (pickFor != null) {
+            val clearOption = AppShortcut("", "[ CLEAR / NONE ]", null)
+            AppPickerOverlay(
+                apps      = listOf(clearOption) + installedApps,
+                title     = "// DEFAULT: $pickFor",
+                onSelect  = { pkg ->
+                    settingsViewModel.setDefaultApp(pickFor, pkg.ifEmpty { null })
+                    showDefaultPicker = null
+                },
+                onDismiss = { showDefaultPicker = null }
             )
         }
     }
@@ -257,9 +343,9 @@ private fun SettingsRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         WingmanText(
-            text = label,
-            style = typo.label,
-            color = if (isSelected) colors.black else colors.secondary,
+            text     = label,
+            style    = typo.label,
+            color    = if (isSelected) colors.black else colors.secondary,
             modifier = Modifier.width(140.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -276,20 +362,20 @@ private fun IntensitySlider(
     val colors = WingmanTheme.colors
     val typo = WingmanTheme.typography
 
-    val pct = (value * 100).roundToInt()
+    val pct    = (value * 100).roundToInt()
     val barLen = 16
     val filled = (value * barLen).roundToInt().coerceIn(0, barLen)
-    val bar = "[" + "#".repeat(filled) + ".".repeat(barLen - filled) + "]"
+    val bar    = "[" + "#".repeat(filled) + ".".repeat(barLen - filled) + "]"
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         WingmanText(
-            text = bar,
+            text  = bar,
             style = typo.caption,
             color = if (isSelected) colors.black else colors.secondary
         )
         Spacer(modifier = Modifier.width(8.dp))
         WingmanText(
-            text = "$pct%",
+            text  = "$pct%",
             style = typo.caption,
             color = if (isSelected) colors.black else colors.primary
         )

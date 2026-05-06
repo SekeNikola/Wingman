@@ -92,9 +92,10 @@ fun HomeScreen(
     fun activateItem(item: MenuItem) {
         viewModel.onSelectEvent()
         when (item.id) {
-            "SCANS"      -> viewModel.openCamera()
-            "ORGANIZER"  -> viewModel.openAppDrawer()
-            "FILES"      -> viewModel.openGallery()
+            "SCANS"     -> viewModel.openCamera()
+            "APPS"      -> viewModel.openAppDrawer()
+            "FILES"     -> viewModel.openGallery()
+            "ORGANIZER" -> viewModel.openPickerFor("ORGANIZER")
             in HomeViewModel.LINKABLE -> {
                 val linked = uiState.linkedApps[item.id]
                 if (linked != null) viewModel.launchApp(linked)
@@ -245,7 +246,6 @@ fun HomeScreen(
             val pickerTitle = when (pickFor) {
                 "ORGANIZER" -> "// SET DEFAULT: ORGANIZER"
                 "MUSIC"     -> "// SET DEFAULT: MUSIC"
-                "APPS"      -> "// SET DEFAULT: APPS"
                 else        -> "// SELECT APP"
             }
             AppPickerOverlay(

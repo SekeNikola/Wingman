@@ -119,6 +119,12 @@ class PrefsDataSource @Inject constructor(
         }
     }
 
+    suspend fun clearLinkedApp(itemId: String) {
+        context.dataStore.edit { prefs ->
+            prefs.remove(stringPreferencesKey("linked_app_${itemId.lowercase()}"))
+        }
+    }
+
     suspend fun updateDisplaySettings(ds: DisplaySettings) {
         context.dataStore.edit { p ->
             p[KEY_TOP_H]   = ds.topHeightFrac
