@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.wingman.launcher.data.repository.SettingsRepository
 import com.wingman.launcher.input.InputHandler
-import com.wingman.launcher.sound.SoundEngine
 import com.wingman.launcher.ui.WingmanApp
 import com.wingman.launcher.viewmodel.MainViewModel
 import com.wingman.launcher.viewmodel.MainViewModelFactory
@@ -21,7 +20,6 @@ import com.wingman.launcher.viewmodel.SettingsViewModel
  * Responsibilities:
  *  - setContent with WingmanApp (full UI tree)
  *  - Route KeyEvents through InputHandler → MainViewModel
- *  - Init/release SoundEngine on lifecycle boundaries
  *  - Manual DI: shared SettingsRepository injected into both ViewModels
  */
 class MainActivity : ComponentActivity() {
@@ -44,8 +42,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        SoundEngine.init(applicationContext)
 
         inputHandler = InputHandler { event ->
             mainViewModel.onInputEvent(event)
@@ -72,6 +68,5 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         inputHandler.release()
-        SoundEngine.release()
     }
 }

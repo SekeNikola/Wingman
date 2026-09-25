@@ -18,8 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.wingman.launcher.data.model.SettingsState
-import com.wingman.launcher.sound.SoundEngine
-import com.wingman.launcher.sound.SoundId
 import com.wingman.launcher.ui.components.TerminalText
 import com.wingman.launcher.ui.effects.noiseGrain
 import com.wingman.launcher.ui.effects.scanlines
@@ -44,7 +42,6 @@ import kotlinx.coroutines.delay
  *  3.2s  — calls onBootComplete()
  *
  * Each line types one character at a time via coroutine delay.
- * sfx_boot plays at start.
  */
 @Composable
 fun BootScreen(
@@ -56,9 +53,6 @@ fun BootScreen(
     val flashAnimatable = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        // Play boot sound at start
-        SoundEngine.play(SoundId.BOOT, settings)
-
         // 0.3s — header
         delay(300)
         lines.add("WINGMAN OS V1.0" to GREEN_PRIMARY)

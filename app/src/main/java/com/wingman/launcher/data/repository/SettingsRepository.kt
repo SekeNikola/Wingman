@@ -24,7 +24,6 @@ class SettingsRepository(private val context: Context) {
         val GLOW_ENABLED = booleanPreferencesKey("glow_enabled")
         val FLICKER_ENABLED = booleanPreferencesKey("flicker_enabled")
         val THEME_INTENSITY = floatPreferencesKey("theme_intensity")
-        val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
         val USERNAME = stringPreferencesKey("username")
     }
 
@@ -34,7 +33,6 @@ class SettingsRepository(private val context: Context) {
             glowEnabled = prefs[Keys.GLOW_ENABLED] ?: true,
             flickerEnabled = prefs[Keys.FLICKER_ENABLED] ?: false,
             themeIntensity = prefs[Keys.THEME_INTENSITY] ?: 0.7f,
-            soundEnabled = prefs[Keys.SOUND_ENABLED] ?: true,
             username = prefs[Keys.USERNAME] ?: "WARREN"
         )
     }
@@ -53,10 +51,6 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setThemeIntensity(value: Float) {
         context.dataStore.edit { it[Keys.THEME_INTENSITY] = value.coerceIn(0f, 1f) }
-    }
-
-    suspend fun setSoundEnabled(value: Boolean) {
-        context.dataStore.edit { it[Keys.SOUND_ENABLED] = value }
     }
 
     suspend fun setUsername(value: String) {

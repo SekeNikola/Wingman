@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/Users/adela/.gradle/daemon/9.5.1/com.wingman.launcher.app-debug-47:/mipmap-mdpi_ic_launcher.xml.flat",
+        "source": "/Users/adela/.gradle/daemon/9.5.1/com.wingman.launcher.app-main-49:/mipmap-mdpi/ic_launcher.xml"
+    },
+    {
+        "merged": "/Users/adela/.gradle/daemon/9.5.1/com.wingman.launcher.app-debug-47:/font_press_start_2p.xml.flat",
+        "source": "/Users/adela/.gradle/daemon/9.5.1/com.wingman.launcher.app-main-49:/font/press_start_2p.xml"
+    },
+    {
+        "merged": "com.wingman.launcher.app-debug-47:/font_press_start_2p.ttf.flat",
+        "source": "com.wingman.launcher.app-main-49:/font/press_start_2p.ttf"
+    }
+]

@@ -6,8 +6,6 @@ import com.wingman.launcher.data.model.InputEvent
 import com.wingman.launcher.data.model.OrganizerTask
 import com.wingman.launcher.data.model.SettingsState
 import com.wingman.launcher.data.repository.OrganizerRepository
-import com.wingman.launcher.sound.SoundEngine
-import com.wingman.launcher.sound.SoundId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,17 +36,14 @@ class OrganizerViewModel(
 
         when (event) {
             is InputEvent.DpadUp, is InputEvent.ScrollUp -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _selectedIndex.update { (it - 1 + count) % count }
             }
 
             is InputEvent.DpadDown, is InputEvent.ScrollDown -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _selectedIndex.update { (it + 1) % count }
             }
 
             is InputEvent.Enter -> {
-                SoundEngine.play(SoundId.CLICK, settings)
                 val task = tasks.value.getOrNull(_selectedIndex.value)
                 task?.let { toggleTask(it.id) }
             }

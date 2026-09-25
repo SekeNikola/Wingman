@@ -12,6 +12,5 @@ data class SettingsState(
     val glowEnabled: Boolean = true,
     val flickerEnabled: Boolean = false,
     val themeIntensity: Float = 0.7f,       // 0.0–1.0
-    val soundEnabled: Boolean = true,
     val username: String = "WARREN"
 )

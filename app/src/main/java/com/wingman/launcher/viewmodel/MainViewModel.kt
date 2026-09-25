@@ -7,8 +7,6 @@ import com.wingman.launcher.data.model.MenuSection
 import com.wingman.launcher.data.model.NavigationState
 import com.wingman.launcher.data.model.SettingsState
 import com.wingman.launcher.data.repository.SettingsRepository
-import com.wingman.launcher.sound.SoundEngine
-import com.wingman.launcher.sound.SoundId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +27,6 @@ import kotlinx.coroutines.launch
  *   Section + Back            : Home(lastIndex)
  *   Section + DPAD/Enter      : delegated to section ViewModel
  *
- * Sound: plays SFX gated by settings.soundEnabled.
  */
 class MainViewModel(
     private val settingsRepository: SettingsRepository
@@ -94,7 +91,6 @@ class MainViewModel(
         val current = _navState.value
         if (current is NavigationState.Home) return  // launcher root — swallow
 
-        playSound(SoundId.BACK)
         _navState.value = NavigationState.Home(lastHomeIndex)
     }
 
@@ -106,7 +102,6 @@ class MainViewModel(
     fun onSelectionChanged(index: Int) {
         val current = _navState.value
         if (current is NavigationState.Home) {
-            playSound(SoundId.SCROLL)
             lastHomeIndex = index
             _navState.update { NavigationState.Home(index) }
         }
@@ -114,7 +109,6 @@ class MainViewModel(
 
     /** Touch: tap on a row directly triggers section entry. */
     fun onSectionSelected(section: MenuSection) {
-        playSound(SoundId.CLICK)
         lastHomeIndex = section.index
         _navState.value = sectionToNavState(section)
     }
@@ -126,21 +120,18 @@ class MainViewModel(
     private fun handleHomeInput(current: NavigationState.Home, event: InputEvent) {
         when (event) {
             is InputEvent.DpadUp, is InputEvent.ScrollUp -> {
-                playSound(SoundId.SCROLL)
                 val newIndex = (current.selectedIndex - 1 + menuCount) % menuCount
                 lastHomeIndex = newIndex
                 _navState.update { NavigationState.Home(newIndex) }
             }
 
             is InputEvent.DpadDown, is InputEvent.ScrollDown -> {
-                playSound(SoundId.SCROLL)
                 val newIndex = (current.selectedIndex + 1) % menuCount
                 lastHomeIndex = newIndex
                 _navState.update { NavigationState.Home(newIndex) }
             }
 
             is InputEvent.Enter -> {
-                playSound(SoundId.CLICK)
                 val section = MenuSection.fromIndex(current.selectedIndex)
                 _navState.value = sectionToNavState(section)
             }
@@ -177,7 +168,4 @@ class MainViewModel(
         MenuSection.SETTINGS -> NavigationState.Settings
     }
 
-    private fun playSound(id: SoundId) {
-        SoundEngine.play(id, settings.value)
-    }
 }

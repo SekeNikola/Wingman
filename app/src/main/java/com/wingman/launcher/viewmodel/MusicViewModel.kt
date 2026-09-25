@@ -7,8 +7,6 @@ import com.wingman.launcher.data.model.MusicPlayerState
 import com.wingman.launcher.data.model.MusicTrack
 import com.wingman.launcher.data.model.SettingsState
 import com.wingman.launcher.data.repository.MusicRepository
-import com.wingman.launcher.sound.SoundEngine
-import com.wingman.launcher.sound.SoundId
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,17 +54,14 @@ class MusicViewModel(
 
         when (event) {
             is InputEvent.DpadUp, is InputEvent.ScrollUp -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _selectedIndex.update { (it - 1 + count) % count }
             }
 
             is InputEvent.DpadDown, is InputEvent.ScrollDown -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _selectedIndex.update { (it + 1) % count }
             }
 
             is InputEvent.Enter -> {
-                SoundEngine.play(SoundId.CLICK, settings)
                 val track = tracks.getOrNull(_selectedIndex.value)
                 track?.let { playTrack(it) }
             }

@@ -40,8 +40,7 @@ import com.wingman.launcher.viewmodel.SettingsViewModel
  *  0 — EFFECTS (toggle scanlines + grain)
  *  1 — GLOW    (toggle active item glow)
  *  2 — FLICKER (toggle screen flicker)
- *  3 — SOUND   (toggle SFX)
- *  4 — INTENSITY (pixel segmented slider, cycles 0.0→1.0)
+ *  3 — INTENSITY (pixel segmented slider, cycles 0.0→1.0)
  *
  * DPAD navigates rows, Enter toggles/adjusts.
  * Changes persist via SettingsRepository/DataStore.
@@ -62,7 +61,6 @@ fun SettingsScreen(
         SettingRow("EFFECTS", if (settings.effectsEnabled) "ON" else "OFF"),
         SettingRow("GLOW", if (settings.glowEnabled) "ON" else "OFF"),
         SettingRow("FLICKER", if (settings.flickerEnabled) "ON" else "OFF"),
-        SettingRow("SOUND", if (settings.soundEnabled) "ON" else "OFF"),
         SettingRow("INTENSITY", "%.1f".format(settings.themeIntensity))
     )
 
@@ -113,7 +111,7 @@ fun SettingsScreen(
                     )
 
                     // Special rendering for intensity row
-                    if (index == 4) {
+                    if (index == 3) {
                         IntensityBar(
                             intensity = settings.themeIntensity,
                             isActive = isActive,

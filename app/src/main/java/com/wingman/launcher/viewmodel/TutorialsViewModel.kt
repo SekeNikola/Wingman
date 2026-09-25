@@ -6,8 +6,6 @@ import com.wingman.launcher.data.model.InputEvent
 import com.wingman.launcher.data.model.SettingsState
 import com.wingman.launcher.data.model.TutorialEntry
 import com.wingman.launcher.data.repository.TutorialsRepository
-import com.wingman.launcher.sound.SoundEngine
-import com.wingman.launcher.sound.SoundId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -57,17 +55,14 @@ class TutorialsViewModel(
         val count = tutorials.value.size.coerceAtLeast(1)
         return when (event) {
             is InputEvent.DpadUp, is InputEvent.ScrollUp -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _selectedIndex.update { (it - 1 + count) % count }
                 true
             }
             is InputEvent.DpadDown, is InputEvent.ScrollDown -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _selectedIndex.update { (it + 1) % count }
                 true
             }
             is InputEvent.Enter -> {
-                SoundEngine.play(SoundId.CLICK, settings)
                 val entry = tutorials.value.getOrNull(_selectedIndex.value)
                 entry?.let { openEntry(it) }
                 true
@@ -84,18 +79,15 @@ class TutorialsViewModel(
     ): Boolean {
         return when (event) {
             is InputEvent.DpadUp, is InputEvent.ScrollUp -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 val newOffset = (nav.scrollOffset - scrollStep).coerceAtLeast(0)
                 _tutorialsNavState.value = nav.copy(scrollOffset = newOffset)
                 true
             }
             is InputEvent.DpadDown, is InputEvent.ScrollDown -> {
-                SoundEngine.play(SoundId.SCROLL, settings)
                 _tutorialsNavState.value = nav.copy(scrollOffset = nav.scrollOffset + scrollStep)
                 true
             }
             is InputEvent.Back -> {
-                SoundEngine.play(SoundId.BACK, settings)
                 closeEntry()
                 true  // Consumed — back goes to list, not Home
             }
